@@ -144,7 +144,7 @@ async function saveData() {
 const LOCK_DATE   = new Date("2026-06-10T23:59:59");
 const REVEAL_DATE = new Date("2026-06-11T00:00:00");
 const ADMIN_PIN   = "2026";
-const MAX_SCORE   = 34;
+const MAX_SCORE   = 38;
 
 const TEAMS=[
   {name:"USA",flag:"🇺🇸"},{name:"Mexico",flag:"🇲🇽"},{name:"Canada",flag:"🇨🇦"},
@@ -177,7 +177,7 @@ function calcScore(p,r){
   (p.qf||[]).forEach(t=>{
     if(aq.find(x=>x.name===t.name)){
       s+=1;
-      if((p.sf||[]).find(x=>x.name===t.name)&&as.find(x=>x.name===t.name))s+=2;
+      if((p.sf||[]).find(x=>x.name===t.name)&&as.find(x=>x.name===t.name))s+=3;
       if((p.final||[]).find(x=>x.name===t.name)&&af.find(x=>x.name===t.name))s+=5;
       if(p.winner&&p.winner.name===t.name&&aw&&aw.name===t.name)s+=5;
     }
@@ -254,17 +254,75 @@ function homeHTML(){
   }
 
   const scoringContent=`<div class="scoring-grid">
-    ${[["🔵","QF correct","1 pt"],["🟣","SF correct","+2 bonus"],["🥈","Finalist","+5 bonus"],["🥇","Winner","+5 bonus"],["👟","Golden Boot","3 pts"],["🏆","Max score","34 pts"]].map(([ic,lb,pt])=>`<div class="sc-box"><div class="sc-icon">${ic}</div><div class="sc-label">${lb}</div><div class="sc-pts">${pt}</div></div>`).join("")}
+    ${[["🔵","QF correct","1 pt"],["🟣","SF correct","+3 bonus"],["🥈","Finalist","+5 bonus"],["🥇","Winner","+5 bonus"],["👟","Golden Boot","3 pts"],["🏆","Max score","38 pts"]].map(([ic,lb,pt])=>`<div class="sc-box"><div class="sc-icon">${ic}</div><div class="sc-label">${lb}</div><div class="sc-pts">${pt}</div></div>`).join("")}
     </div>
     <div class="card"><div class="card-title">How points stack</div>
     <div style="font-size:13px;color:var(--muted);line-height:2">
-      Nail the winner → 1+2+5+5 = <strong style="color:var(--green)">13 pts</strong><br>
-      Correct finalist → 1+2+5 = <strong style="color:var(--green)">8 pts</strong><br>
-      Correct semi → 1+2 = <strong style="color:var(--green)">3 pts</strong><br>
+      Nail the winner → 1+3+5+5 = <strong style="color:var(--green)">14 pts</strong><br>
+      Correct finalist → 1+3+5 = <strong style="color:var(--green)">9 pts</strong><br>
+      Correct semi → 1+3 = <strong style="color:var(--green)">4 pts</strong><br>
       Correct QF only → <strong style="color:var(--green)">1 pt</strong>
     </div></div>`;
 
-  const tabContent=S.tab==="leaderboard"?lbContent:S.tab==="picks"?picksContent:scoringContent;
+  const rulesContent=`
+    <div class="card">
+      <div class="card-title">🏆 How to play</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.9">
+        Each player makes their predictions <strong style="color:var(--text)">before June 11</strong> when the tournament kicks off. You pick:
+        <br><br>
+        <strong style="color:var(--text)">1. Eight quarter-finalists</strong> — which 8 teams make it to the QFs?<br>
+        <strong style="color:var(--text)">2. Four semi-finalists</strong> — from your 8 QFs, which 4 go further?<br>
+        <strong style="color:var(--text)">3. Two finalists</strong> — from your 4 semis, who reaches the final?<br>
+        <strong style="color:var(--text)">4. The winner</strong> — from your 2 finalists, who lifts the trophy?<br>
+        <strong style="color:var(--text)">5. Golden Boot</strong> — which player scores the most goals?
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Scoring</div>
+      <div style="font-size:13px;color:var(--muted);line-height:2">
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:6px">
+          <span>🔵 Each correct QF pick</span><strong style="color:var(--green)">1 pt</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:6px">
+          <span>🟣 Each correct SF pick</span><strong style="color:var(--green)">+3 pts bonus</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:6px">
+          <span>🥈 Each correct finalist</span><strong style="color:var(--green)">+5 pts bonus</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:6px">
+          <span>🥇 Correct winner</span><strong style="color:var(--green)">+5 pts bonus</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>👟 Correct Golden Boot</span><strong style="color:var(--green)">3 pts</strong>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💡 Points stack up</div>
+      <div style="font-size:13px;color:var(--muted);line-height:2">
+        If you pick a team all the way to the winner, points stack:<br>
+        <span style="color:var(--text)">QF(1) + SF(+3) + Final(+5) + Winner(+5) = <strong style="color:var(--green)">14 pts</strong></span> from one team!<br><br>
+        Your semi picks must come from your QF picks.<br>
+        Your finalists must come from your semis.<br>
+        Your winner must be one of your two finalists.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔒 Deadline & fairness</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.9">
+        All picks must be submitted <strong style="color:var(--text)">before June 10 midnight</strong>. After that, picks are locked and can't be changed.<br><br>
+        Picks are <strong style="color:var(--text)">hidden from everyone</strong> until the tournament starts on June 11 — no peeking at what others picked!<br><br>
+        The <strong style="color:var(--text)">Admin</strong> enters the actual results as the tournament progresses and scores update automatically for everyone.
+      </div>
+    </div>
+    <div class="card" style="background:var(--green-light);border-color:#86efac">
+      <div style="font-size:13px;color:var(--green-dark);text-align:center;font-weight:600;line-height:1.8">
+        🏆 Maximum possible score: <span style="font-size:18px">38 pts</span><br>
+        <span style="font-weight:400;font-size:12px">Whoever scores the most wins!</span>
+      </div>
+    </div>`;
+
+  const tabContent=S.tab==="leaderboard"?lbContent:S.tab==="picks"?picksContent:S.tab==="rules"?rulesContent:scoringContent;
   return`<div class="app">
     <div class="hero">
       <span class="hero-ball">⚽</span>
@@ -279,6 +337,7 @@ function homeHTML(){
       <button class="tab-btn ${S.tab==="leaderboard"?"active":""}" data-tab="leaderboard">Leaderboard</button>
       <button class="tab-btn ${S.tab==="picks"?"active":""}" data-tab="picks">All picks</button>
       <button class="tab-btn ${S.tab==="scoring"?"active":""}" data-tab="scoring">Scoring</button>
+      <button class="tab-btn ${S.tab==="rules"?"active":""}" data-tab="rules">Rules</button>
     </div>
     <div class="content">${tabContent}
       <div class="divider"></div>
